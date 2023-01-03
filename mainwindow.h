@@ -31,5 +31,6 @@ private:
     Ui::MainWindow *ui;
 public slots:
     void slotReadyRead();
+    void slotDisonected();
 };
 #endif // MAINWINDOW_H

@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     socket = new QTcpSocket(this);
     connect(socket,&QTcpSocket::readyRead,this,&MainWindow::slotReadyRead);
-    connect(socket,&QTcpSocket::disconnected,this,&QTcpSocket::deleteLater);
+    //connect(socket,&QTcpSocket::disconnected,this,&QTcpSocket::deleteLater);
+    connect(socket,&QTcpSocket::disconnected,this,&MainWindow::slotDisonected);
     nextBlockSize=0;
 }
 
@@ -20,7 +21,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_connect_clicked()
 {
-    socket->connectToHost("127.0.0.1",2323);
+    if(ui->lineEdit_host->text().isEmpty())
+    {
+        socket->connectToHost("127.0.0.1",2323);
+    }else{
+        socket->connectToHost(ui->lineEdit_host->text(),2323);
+    }
+
 }
 
 void MainWindow::SendToServer(QString str)
@@ -67,6 +74,11 @@ void MainWindow::slotReadyRead()
     }else{
         ui->textBrowser->append("ready error");
     }
+}
+
+void MainWindow::slotDisonected()
+{
+    socket->deleteLater();
 }
 
 void MainWindow::on_send_clicked()

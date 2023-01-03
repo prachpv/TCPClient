@@ -18,11 +18,18 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QPushButton" name="connect">
-        <property name="text">
-         <string>connect</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLineEdit" name="lineEdit_host"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="connect">
+          <property name="text">
+           <string>connect</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QTextBrowser" name="textBrowser"/>
