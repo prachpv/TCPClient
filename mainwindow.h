@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QTime>
+#include <QtGui>
+#include <QInputDialog>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -25,9 +27,9 @@ private slots:
 private:
     QByteArray Data;
     QTcpSocket* socket;
-    void SendToServer(QString str);
+    void SendToServer(QString name,QString str);
     quint16 nextBlockSize;
-private:
+    QString username;
     Ui::MainWindow *ui;
 public slots:
     void slotReadyRead();

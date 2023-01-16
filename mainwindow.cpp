@@ -11,6 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(socket,&QTcpSocket::disconnected,this,&QTcpSocket::deleteLater);
     connect(socket,&QTcpSocket::disconnected,this,&MainWindow::slotDisonected);
     nextBlockSize=0;
+    bool ok;
+    QString text= QInputDialog::getText(this,QString::fromUtf8("Введите имя пользователя"),QString::fromUtf8("Ваш имя:"),QLineEdit::Normal,QDir::home().dirName(),&ok);
+username=text;
 }
 
 MainWindow::~MainWindow()
@@ -30,12 +33,13 @@ void MainWindow::on_connect_clicked()
 
 }
 
-void MainWindow::SendToServer(QString str)
+void MainWindow::SendToServer(QString name,QString str)
 {
     Data.clear();
+
     QDataStream out(&Data,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_10);
-    out<<quint16(0)<<QTime::currentTime()<<str;
+    out<<quint16(0)<<name<<QTime::currentTime()<<str;
     out.device()->seek(0);
     out<<quint16(Data.size()-sizeof(quint16));
     socket->write(Data);
@@ -67,9 +71,10 @@ void MainWindow::slotReadyRead()
             }
             QString str;
             QTime time;
-            in>>time>>str;
+            QString name;
+            in>>name>>time>>str;
             nextBlockSize=0;
-            ui->textBrowser->append(time.toString()+" "+str);
+            ui->textBrowser->append(time.toString()+"["+name+"]"+" "+str);
         }
     }else{
         ui->textBrowser->append("ready error");
@@ -83,10 +88,10 @@ void MainWindow::slotDisonected()
 
 void MainWindow::on_send_clicked()
 {
-    SendToServer(ui->message->text());
+    SendToServer(username,ui->message->text());
 }
 
 void MainWindow::on_message_returnPressed()
 {
-    SendToServer(ui->message->text());
+    SendToServer(username,ui->message->text());
 }
