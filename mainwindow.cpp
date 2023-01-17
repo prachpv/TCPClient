@@ -33,13 +33,13 @@ void MainWindow::on_connect_clicked()
 
 }
 
-void MainWindow::SendToServer(QString name,QString str)
+void MainWindow::SendToServer(QString name,QString str,int mode)
 {
     Data.clear();
 
     QDataStream out(&Data,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_10);
-    out<<quint16(0)<<name<<QTime::currentTime()<<str;
+    out<<quint16(0)<<name<<mode<<QTime::currentTime()<<str;
     out.device()->seek(0);
     out<<quint16(Data.size()-sizeof(quint16));
     socket->write(Data);
@@ -52,9 +52,7 @@ void MainWindow::slotReadyRead()
     in.setVersion(QDataStream::Qt_5_10);
     if(in.status()==QDataStream::Ok)
     {
-//        QString str;
-//        in>>str;
-//        ui->textBrowser->append(str);
+
         for( ; ; )
         {
             if(nextBlockSize==0)
@@ -69,12 +67,19 @@ void MainWindow::slotReadyRead()
             {
                 break;
             }
+            //
+            //
             QString str;
             QTime time;
             QString name;
-            in>>name>>time>>str;
+           int mode_sender;
+            in>>name>>mode_sender>>time>>str;
+            str+="///"+QString::number(mode_sender);
             nextBlockSize=0;
+            if(mode_sender==0)
+            {
             ui->textBrowser->append(time.toString()+"["+name+"]"+" "+str);
+            }
         }
     }else{
         ui->textBrowser->append("ready error");
@@ -88,10 +93,10 @@ void MainWindow::slotDisonected()
 
 void MainWindow::on_send_clicked()
 {
-    SendToServer(username,ui->message->text());
+    SendToServer(username,ui->message->text(),mode);
 }
 
 void MainWindow::on_message_returnPressed()
 {
-    SendToServer(username,ui->message->text());
+    SendToServer(username,ui->message->text(),mode);
 }

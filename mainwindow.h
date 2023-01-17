@@ -27,10 +27,11 @@ private slots:
 private:
     QByteArray Data;
     QTcpSocket* socket;
-    void SendToServer(QString name,QString str);
+    void SendToServer(QString name,QString str,int mode);
     quint16 nextBlockSize;
     QString username;
     Ui::MainWindow *ui;
+    int mode=0;
 public slots:
     void slotReadyRead();
     void slotDisonected();
