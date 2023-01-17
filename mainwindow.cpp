@@ -82,7 +82,7 @@ void MainWindow::slotSendPartOfFile() {
     file= NULL;
 
     disconnect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(slotSendPartOfFile()));
-    //emit endSendFile();
+    emit slotDisonected();
   }
 }
 
