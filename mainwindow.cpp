@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     nextBlockSize=0;
     bool ok;
     QString text= QInputDialog::getText(this,QString::fromUtf8("Введите имя пользователя"),QString::fromUtf8("Ваш имя:"),QLineEdit::Normal,QDir::home().dirName(),&ok);
-username=text;
+    username=text;
+
 }
 
 MainWindow::~MainWindow()
@@ -33,17 +34,56 @@ void MainWindow::on_connect_clicked()
 
 }
 
-void MainWindow::SendToServer(QString name,QString str,int mode)
+void MainWindow::SendToServer(QString name,QString str,int _mode)
 {
     Data.clear();
 
     QDataStream out(&Data,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_10);
-    out<<quint16(0)<<name<<mode<<QTime::currentTime()<<str;
-    out.device()->seek(0);
-    out<<quint16(Data.size()-sizeof(quint16));
-    socket->write(Data);
+    if(_mode==0)
+    {
+        out<<quint16(0)<<name<<_mode<<QTime::currentTime()<<str;
+        out.device()->seek(0);
+        out<<quint16(Data.size()-sizeof(quint16));
+        socket->write(Data);
+        ui->message->clear();
+    }
+    if(_mode==1)
+    {
+        QString path=file_path_temp;
+        file = new QFile(path);
+
+
+        if(file->open(QFile::ReadOnly))
+        {
+            quint64 size=file->size();
+            out<<quint16(0)<<name<<_mode<<QTime::currentTime()<<QFileInfo(file->fileName()).fileName()<<size;
+            out.device()->seek(0);
+            out<<quint16(Data.size()-sizeof(quint16));
+            socket->write(Data);
+            socket->waitForBytesWritten();
+            connect(socket,SIGNAL(bytesWritten(qint64)),this,SLOT(slotSendPartOfFile));
+            slotSendPartOfFile();
+        }
+    }
+   mode=0;
+
     ui->message->clear();
+}
+void MainWindow::slotSendPartOfFile() {
+  char block[1024];
+  if(!file->atEnd()){
+    qint64 in = file->read(block, sizeof(block));
+    qint64 send = socket->write(block, in);
+    qDebug() << "Send: " << send;
+  } else{
+      qDebug() << "END SEND FILE";
+    file->close();
+    file= NULL;
+
+    disconnect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(slotSendPartOfFile()));
+    //emit endSendFile();
+  }
 }
 
 void MainWindow::slotReadyRead()
@@ -72,13 +112,13 @@ void MainWindow::slotReadyRead()
             QString str;
             QTime time;
             QString name;
-           int mode_sender;
+            int mode_sender;
             in>>name>>mode_sender>>time>>str;
             str+="///"+QString::number(mode_sender);
             nextBlockSize=0;
             if(mode_sender==0)
             {
-            ui->textBrowser->append(time.toString()+"["+name+"]"+" "+str);
+                ui->textBrowser->append(time.toString()+"["+name+"]"+" "+str);
             }
         }
     }else{
@@ -100,3 +140,19 @@ void MainWindow::on_message_returnPressed()
 {
     SendToServer(username,ui->message->text(),mode);
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, QString::fromUtf8("Имя файла"));
+
+    if(!file_name.isEmpty())
+    {
+        mode =1;
+        file_path_temp=file_name;
+        ui->message->setEnabled(false);
+
+    }
+    //ui->message->setText(file_name);
+}
+
+

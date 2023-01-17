@@ -6,6 +6,7 @@
 #include <QTime>
 #include <QtGui>
 #include <QInputDialog>
+#include <QFileDialog>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -24,16 +25,23 @@ private slots:
 
     void on_message_returnPressed();
 
+    void on_pushButton_clicked();
+
+
+
 private:
     QByteArray Data;
     QTcpSocket* socket;
     void SendToServer(QString name,QString str,int mode);
     quint16 nextBlockSize;
     QString username;
+    QString file_path_temp;
     Ui::MainWindow *ui;
+    QFile* file;
     int mode=0;
 public slots:
     void slotReadyRead();
     void slotDisonected();
+    void slotSendPartOfFile();
 };
 #endif // MAINWINDOW_H
