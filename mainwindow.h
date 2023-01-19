@@ -41,8 +41,8 @@ private:
     QFile* file_;
     quint8 filesend;
     QString Me;
-
     int mode=0;
+    void SendFile();
 public slots:
     void slotReadyRead();
     void slotDisonected();

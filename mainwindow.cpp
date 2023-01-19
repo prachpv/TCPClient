@@ -36,6 +36,15 @@ void MainWindow::on_connect_clicked()
 
 void MainWindow::SendToServer(QString name,QString str,int _mode)
 {
+    SendFile();
+
+
+        ui->message->clear();
+}
+
+
+void MainWindow::SendFile()
+{
     QString filePathName = file_path_temp;
         QStringList filePath = filePathName.split("/");
 
@@ -46,19 +55,21 @@ void MainWindow::SendToServer(QString name,QString str,int _mode)
         QByteArray arrBlock;
         QByteArray junk("!@#Rtasd#$%sdfs!!!)()334rrer");
         QList<QByteArray> Blocks;
-
+//_mode=1;
         if (file.open(QIODevice::ReadOnly)) {
             QFileInfo fileInfo(file);
             QString fileName(filePath.last());
 
             QDataStream out(&arrBlock, QIODevice::WriteOnly);
             out.setVersion(QDataStream::Qt_5_7);
+            //
 
-            out << quint16(0) << quint8(filesend) << QTime::currentTime()
-                << Me + "_" + username + "_" + fileName << fileInfo.size();
+//            out << quint16(0) << QTime::currentTime()
+//                <<username<<fileName << fileInfo.size();
 
-            out.device()->seek(0);
-            out << quint16(arrBlock.size() - sizeof(quint16));
+//            out.device()->seek(0);
+//            out << quint16(arrBlock.size() - sizeof(quint16));
+            //
             socket->write(arrBlock);
             socket->waitForBytesWritten();
 
@@ -90,9 +101,6 @@ void MainWindow::SendToServer(QString name,QString str,int _mode)
                 //ui->prBr_fileSending->setValue(i/Blocks.size()*100);
             }
         }
-
-
-    ui->message->clear();
 }
 
 
