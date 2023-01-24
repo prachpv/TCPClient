@@ -40,9 +40,14 @@ private:
     Ui::MainWindow *ui;
     QFile* file_;
     quint8 filesend;
-    QString Me;
+    QVector<QByteArray> dataVector;
+    QByteArray line;
+    bool downloading_in_process=false;
+    //QString Me;
     int mode=0;
+    int k=0;
     void SendFile();
+    void ReadFile();
 public slots:
     void slotReadyRead();
     void slotDisonected();
